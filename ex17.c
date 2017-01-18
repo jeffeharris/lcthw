@@ -123,8 +123,13 @@ void Database_set(struct Connection *conn, int id, const char *name,
 
 	addr->set = 1;
 	// WARNING: bug, read the "How To Break It" and fix this
-	char *res = strncpy(addr->email, email, MAX_DATA);
+	char *res = strncpy(addr->name, name, MAX_DATA);
 	res[MAX_DATA - 1] = '\0';
+	if (!res)
+		die("Name copy failed", conn);
+
+
+	res = strncpy(addr->email, email, MAX_DATA);
 	if (!res)
 		die("Email copy failed", conn);
 }
@@ -156,6 +161,23 @@ void Database_list(struct Connection *conn)
 
 		if (cur->set) {
 			Address_print(cur);
+		}
+	}
+}
+
+void Database_search(struct Connection *conn, const char *findme)
+{
+	char *value;
+	struct Address addr;
+	int i = 0;
+	for (i = 0; i < MAX_ROWS; i++) {
+		addr = conn->db->rows[i];
+
+		if (addr.set) {
+			value = addr.name;
+			if (!strcmp(value,findme)) {
+				printf("found name at id %d\n", i);
+			}
 		}
 	}
 }
@@ -215,8 +237,12 @@ int main(int argc, char *argv[])
 		case 'l':
 			Database_list(conn);
 			break;
+
+		case 'f':
+			Database_search(conn, argv[3]);
+			break;
 		default:
-			die("Invalid action: c=create, g=get, s=set, d=del, l=list", conn);
+			die("Invalid action: c=create, g=get, s=set, d=del, l=list, f=find", conn);
 	}
 
 	Database_close(conn);
