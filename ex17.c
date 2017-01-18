@@ -165,6 +165,12 @@ void Database_list(struct Connection *conn)
 	}
 }
 
+void Database_copy(struct Connection *conn, int fromID, int toID)
+{
+	struct Address from = conn->db->rows[fromID];
+	Database_set(conn, toID, from.name, from.email);
+}
+
 void Database_search(struct Connection *conn, const char *findme)
 {
 	char *value;
@@ -240,6 +246,11 @@ int main(int argc, char *argv[])
 
 		case 'f':
 			Database_search(conn, argv[3]);
+			break;
+
+		case 'p':
+			Database_copy(conn, atol(argv[3]), atol(argv[4]));
+			Database_write(conn);
 			break;
 		default:
 			die("Invalid action: c=create, g=get, s=set, d=del, l=list, f=find", conn);
