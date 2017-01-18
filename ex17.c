@@ -24,18 +24,8 @@ struct Connection {
 	struct Database *db;
 };
 
-void die(const char *message)
-{
-	if (errno) {
-		perror(message);
-	} else {
-		printf("ERROR: %s\n", message);
-	}
+void Database_close(struct Connection *conn);
 
-	exit(1);
-}
-
-/*
 void die(const char *message, struct Connection *conn)
 {
 	if (errno) {
@@ -48,7 +38,7 @@ void die(const char *message, struct Connection *conn)
 
 	exit(1);	
 }
-*/
+
 
 void Address_print(struct Address *addr)
 {
@@ -182,14 +172,12 @@ int main(int argc, char *argv[])
 		Address_print(&db.rows[0]);
 	}
 
-	struct Connection *conn;
-
 	if (argc < 3)
-		die("USAGE: ex17 <dbfile> <action> [action params]", conn);
+		printf("USAGE: ex17 <dbfile> <action> [action params]\n");
 
 	char *filename = argv[1];
 	char action = argv[2][0];
-	conn = Database_open(filename, action);
+	struct Connection *conn = Database_open(filename, action);
 	int id = 0;
 
 	if (argc > 3) id = atoi(argv[3]);
